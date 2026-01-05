@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Book extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'title',
+        'author',
+        'isbn',
+        'published_date',
+        'description',
+        'image_url',
+    ];
+
+    /**
+     * この書籍を登録したユーザーを取得
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * この書籍に紐付くジャンル一覧を取得
+     */
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class);
+    }
+
+    /**
+     * この書籍に対するレビュー一覧を取得
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * この書籍をお気に入りに登録しているユーザー一覧を取得
+     */
+    public function favoritedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+    }
+}
