@@ -14,10 +14,41 @@ class BookController extends Controller
      */
     public function index()
     {
-        // ページネーション（10件ずつ）と、紐付くジャンル情報を効率的に取得（Eager Loading）
-        $books = Book::with('genres')->latest()->paginate(10);
+        // 1. クエリビルダーの初期化
+        $query = Book::with('genres');
 
-        return view('books.index', compact('books'));
+        // 2. キーワード検索条件を追加
+        if ($keyword = request('keyword')) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('author', 'like', "%{$keyword}%");
+            });
+        }
+
+        // 3. ジャンル絞り込み条件を追加
+        if ($genreId = request('genre')) {
+            $query->whereHas('genres', function ($q) use ($genreId) {
+                $q->where('genres.id', $genreId);
+            });
+        }
+
+        // 4. 並び順ソート条件を追加
+        $sort = request('sort', 'newest');
+        match ($sort) {
+            'newest' => $query->latest(),
+            'oldest' => $query->oldest(),
+            'title' => $query->orderBy('title'),
+            'rating' => $query->withAvg('reviews', 'rating')->orderByDesc('reviews_avg_rating'),
+            default => $query->latest(),
+        };
+
+        // 5. ページネーション
+        $books = $query->paginate(10);
+
+        // 6. ビューに渡すデータを準備
+        $genres = Genre::all();
+
+        return view('books.index', compact('books', 'genres'));
     }
 
     /**

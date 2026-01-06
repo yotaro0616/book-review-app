@@ -28,12 +28,6 @@
                         <x-nav-link :href="route('genres.index')" :active="request()->routeIs('genres.*')">
                             {{ __('ジャンル管理') }}
                         </x-nav-link>
-                        {{-- マイ読書レポート機能はPhase 5で実装予定 --}}
-                        @if (false)
-                            <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                                {{ __('マイレポート') }}
-                            </x-nav-link>
-                        @endif
                     @endauth
                 </div>
             </div>
@@ -62,12 +56,12 @@
                             <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
+                                <button type="submit"
+                                    class="block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out">
                                     {{ __('ログアウト') }}
-                                </x-dropdown-link>
+                                </button>
                             </form>
+
                         </x-slot>
                     </x-dropdown>
                 @else
@@ -112,12 +106,6 @@
                 <x-responsive-nav-link :href="route('genres.index')" :active="request()->routeIs('genres.*')">
                     {{ __('ジャンル管理') }}
                 </x-responsive-nav-link>
-                {{-- マイ読書レポート機能はPhase 5で実装予定 --}}
-                @if (false)
-                    <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                        {{ __('マイレポート') }}
-                    </x-responsive-nav-link>
-                @endif
             @endauth
         </div>
 
