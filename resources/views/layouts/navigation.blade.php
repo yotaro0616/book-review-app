@@ -28,16 +28,13 @@
                         <x-nav-link :href="route('genres.index')" :active="request()->routeIs('genres.*')">
                             {{ __('ジャンル管理') }}
                         </x-nav-link>
-                        {{-- マイ読書レポート機能はPhase 5で実装予定 --}}
-                        @if (false)
-                            <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                                {{ __('マイレポート') }}
-                            </x-nav-link>
-                        @endif
+
+                        <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                            {{ __('マイレポート') }}
+                        </x-nav-link>
                     @endauth
                 </div>
             </div>
-
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @auth
@@ -112,12 +109,9 @@
                 <x-responsive-nav-link :href="route('genres.index')" :active="request()->routeIs('genres.*')">
                     {{ __('ジャンル管理') }}
                 </x-responsive-nav-link>
-                {{-- マイ読書レポート機能はPhase 5で実装予定 --}}
-                @if (false)
-                    <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
-                        {{ __('マイレポート') }}
-                    </x-responsive-nav-link>
-                @endif
+                <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                    {{ __('マイレポート') }}
+                </x-responsive-nav-link>
             @endauth
         </div>
 
