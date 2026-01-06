@@ -56,6 +56,9 @@ Route::middleware(['auth'])->group(function () {
 
     // 特定のレビューに対して「いいね」をトグルする
     Route::post('reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
+
+    Route::get('/books/isbn/{isbn}', [BookController::class, 'searchByIsbn'])->name('books.searchByIsbn');
+
 });
 
 // --- 書籍閲覧 ---

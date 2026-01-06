@@ -6,6 +6,7 @@ use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 use App\Models\Genre;
+use Illuminate\Support\Facades\Http;
 
 class BookController extends Controller
 {
@@ -114,6 +115,52 @@ class BookController extends Controller
         $genres = Genre::all();
 
         return view('books.create', compact('genres'));
+    }
+
+    /**
+     * ISBN コードから Google Books API で書籍情報を検索
+     */
+    public function searchByIsbn($isbn)
+    {
+        // 1. ISBN コードのバリデーション（13桁の数字）
+        if (! preg_match('/^\d{13}$/', $isbn)) {
+            return response()->json(['error' => '無効な ISBN コードです'], 400);
+        }
+
+        // 2. Google Books API にリクエスト
+        try {
+            $response = Http::get('https://www.googleapis.com/books/v1/volumes', [
+                'q' => 'isbn:'.$isbn,
+                'key' => env('GOOGLE_BOOKS_API_KEY'),
+            ]);
+
+            // 3. レスポンスをチェック
+            if ($response->failed()) {
+                return response()->json(['error' => 'API リクエストに失敗しました'], 500);
+            }
+
+            $data = $response->json();
+
+            // 4. 検索結果がない場合
+            if (empty($data['items'])) {
+                return response()->json(['error' => '書籍が見つかりません'], 404);
+            }
+
+            // 5. 最初の検索結果を取得
+            $volumeInfo = $data['items'][0]['volumeInfo'];
+
+            // 6. 必要な情報を抽出して返す
+            return response()->json([
+                'title' => $volumeInfo['title'] ?? '',
+                'author' => $volumeInfo['authors'][0] ?? '',
+                'published_date' => $volumeInfo['publishedDate'] ?? '',
+                'description' => $volumeInfo['description'] ?? '',
+                'image_url' => $volumeInfo['imageLinks']['thumbnail'] ?? '',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'エラーが発生しました: '.$e->getMessage()], 500);
+        }
     }
 
     /**
