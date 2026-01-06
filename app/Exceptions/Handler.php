@@ -3,7 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -23,8 +23,15 @@ class Handler extends ExceptionHandler
      */
     public function register(): void
     {
-        $this->reportable(function (Throwable $e) {
-            //
+
+        // 404エラー（NotFoundHttpException）をカスタムする
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            // リクエストが API (/api/*) からのものである場合
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'error' => '書籍が見つかりませんでした。', // 設計書通りのメッセージ
+                ], 404);
+            }
         });
     }
 }

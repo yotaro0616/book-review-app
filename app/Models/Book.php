@@ -56,4 +56,30 @@ class Book extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    /**
+     * 検索条件を適用するローカルスコープ
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilter($query, array $filters)
+    {
+        // $filters["keyword"] が存在する場合にのみ、このクロージャ内のクエリを実行
+        $query->when($filters['keyword'] ?? null, function ($query, $keyword) {
+            // タイトルまたは著者名にキーワードが含まれるものを検索
+            $query->where(function ($query) use ($keyword) {
+                $query->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('author', 'like', "%{$keyword}%");
+            });
+            // $filters["genre_id"] が存在する場合にのみ、このクロージャ内のクエリを実行
+        })->when($filters['genre_id'] ?? null, function ($query, $genreId) {
+            // genresリレーションが存在し、そのIDが一致する書籍を検索
+            $query->whereHas('genres', function ($query) use ($genreId) {
+                $query->where('genres.id', $genreId);
+            });
+        });
+
+        return $query;
+    }
 }
