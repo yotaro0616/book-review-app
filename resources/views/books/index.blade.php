@@ -67,14 +67,10 @@
                                 リセット
                             </a>
                             @auth
-                                @if (false)
-                                    {{-- Phase 3で有効化 --}}
-                                    <a href="{{ route('books.export') }}?{{ http_build_query(request()->query()) }}"
-                                        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-auto">
-                                        CSVエクスポート
-                                    </a>
-                                @endif
-
+                                <a href="{{ route('books.export') }}?{{ http_build_query(request()->query()) }}"
+                                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded ml-auto">
+                                    CSVエクスポート
+                                </a>
                             @endauth
                         </div>
                     </form>

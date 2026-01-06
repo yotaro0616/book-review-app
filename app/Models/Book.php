@@ -50,4 +50,10 @@ class Book extends Model
     {
         return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
     }
+
+    protected $casts = [
+        'published_date' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 }

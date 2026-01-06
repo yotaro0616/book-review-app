@@ -52,6 +52,60 @@ class BookController extends Controller
     }
 
     /**
+     * 書籍一覧をCSVエクスポート
+     */
+    public function csvExport()
+    {
+        // 1. 検索条件に基づいてクエリを構築
+        $query = Book::with('genres');
+
+        // キーワード検索条件
+        if ($keyword = request('keyword')) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                    ->orWhere('author', 'like', "%{$keyword}%");
+            });
+        }
+
+        // ジャンル絞り込み条件
+        if ($genreId = request('genre')) {
+            $query->whereHas('genres', function ($q) use ($genreId) {
+                $q->where('genres.id', $genreId);
+            });
+        }
+
+        // 2. StreamedResponse でファイルをストリーミング出力
+        return response()->streamDownload(function () use ($query) {
+            // ファイルポインタを開く（php://output は標準出力）
+            $file = fopen('php://output', 'w');
+
+            // BOM付きUTF-8を出力（Excelで日本語が正しく表示されるため）
+            fwrite($file, "\xEF\xBB\xBF");
+
+            // ヘッダー行を出力
+            fputcsv($file, ['ID', 'タイトル', '著者', 'ISBN', '出版日', 'ジャンル', '登録日']);
+
+            // データを1件ずつ取得して出力
+            $query->cursor()->each(function ($book) use ($file) {
+
+                // CSV行を出力
+                fputcsv($file, [
+                    $book->id,
+                    $book->title,
+                    $book->author,
+                    $book->isbn,
+                    $book->published_date->format('Y-m-d'),
+                    $book->genres->pluck('name')->implode(', '),
+                    $book->created_at->format('Y-m-d H:i:s'),
+                ]);
+            });
+
+            // ファイルをクローズ
+            fclose($file);
+        }, 'books_'.now()->format('YmdHis').'.csv');
+    }
+
+    /**
      * 書籍登録画面を表示
      */
     public function create()

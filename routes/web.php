@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('books.edit');
     Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
     Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
+    Route::get('/books/export', [BookController::class, 'csvExport'])->name('books.export');
 
     // ---  レビュー管理 ---
     Route::post('books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
